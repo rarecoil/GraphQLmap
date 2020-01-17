@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 import argparse
 import json
 import re
@@ -15,6 +15,7 @@ class GraphQLmap(object):
     endpoint = "graphql"
     method   = "POST"
     args = None
+    token = None
     url  = None
 
     def __init__(self, args):
@@ -30,42 +31,44 @@ class GraphQLmap(object):
         self.args = args
         self.url = args.url
         self.method = args.method
+        self.token = args.token
 
         while True:
             query = input("GraphQLmap > ")
             cmdlist.append(query)
-            if query == "exit" or query == "q": 
+            if query == "exit" or query == "q":
                 exit()
 
             elif query == "help":
                 display_help()
-            
+
             elif query == "debug":
-                display_types(self.url, self.method)
+                display_types(self.url, self.method, self.token)
 
             elif query == "dump_new":
-                dump_schema(self.url, self.method, 15)
+                dump_schema(self.url, self.method, 15, self.token)
 
             elif query == "dump_old":
-                dump_schema(self.url, self.method, 14)
+                dump_schema(self.url, self.method, 14, self.token)
 
             elif query == "nosqli":
-                blind_nosql(self.url, self.method)
+                blind_nosql(self.url, self.method, self.token)
 
             elif query == "postgresqli":
-                blind_postgresql(self.url, self.method)
+                blind_postgresql(self.url, self.method, self.token)
 
             elif query == "mysqli":
-                blind_mysql(self.url, self.method)
-                
+                blind_mysql(self.url, self.method, self.token)
+
             elif query == "mssqli":
-                blind_mssql(self.url, self.method)
+                blind_mssql(self.url, self.method, self.token)
 
             else:
-                exec_advanced(args.url, self.method, query)
+                exec_advanced(args.url, self.method, query, self.token)
 
 if __name__ == "__main__":
     readline.set_completer(auto_completer)
     readline.parse_and_bind("tab: complete")
     args = parse_args()
+
     GraphQLmap(args)

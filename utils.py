@@ -21,17 +21,21 @@ def jq(data):
     return json.dumps(data, indent=4, sort_keys=True)
 
 
-def requester(URL, method, payload):
+def requester(URL, method, payload, access_token=None):
+    headers = {}
+    if access_token != None:
+        headers = { 'Authorization': "Bearer %s" % access_token }
+
     if method == "POST":
         data = {
             "query": payload.replace("+", " ")
         }
-        r = requests.post(URL, data=data, verify=False)
+        r = requests.post(URL, data=data, verify=False, headers=headers)
         if r.status_code == 500:
             print("\033[91m/!\ API didn't respond correctly to a POST method !\033[0m")
             return None
     else:
-        r = requests.get( URL+"?query={}".format(payload), verify=False)
+        r = requests.get( URL+"?query={}".format(payload), verify=False, headers=headers)
     return r
 
 
@@ -40,6 +44,7 @@ def parse_args():
     parser.add_argument('-u', action ='store', dest='url',  help="URL to query : example.com/graphql?query={}")
     parser.add_argument('-v', action ='store', dest='verbosity', help="Enable verbosity", nargs='?', const=True)
     parser.add_argument('--method', action ='store', dest='method', help="HTTP Method to use interact with /graphql endpoint", nargs='?',  const=True, default="GET")
+    parser.add_argument('--token', action ='store', dest='token', help="HTTP Authorization: Bearer token for authenticated graphql endpoints", nargs='?', const=True, default=None)
     results = parser.parse_args() 
     if results.url == None:
         parser.print_help()
